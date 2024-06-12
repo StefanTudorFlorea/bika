@@ -5,7 +5,7 @@
 
 namespace handler {
 
-inline nlohmann::json ping(const httplib::Request& req) {
+nlohmann::json ping(const httplib::Request& req) {
     return {
         {"error", false},
         {"message", "OK"}

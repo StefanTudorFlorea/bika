@@ -15,7 +15,7 @@ int main() {
     httplib::Server app;
     Routes routes{app};
 
-    // routes
+    // routes   
     routes.add("GET", "/ping", handler::ping);
 
     // start
