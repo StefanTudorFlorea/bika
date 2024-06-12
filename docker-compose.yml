@@ -1,8 +1,8 @@
 services:
-  frontend:
-    build:
-      context: frontend/ 
-    ports: [80:80]
+  # frontend:
+  #   build:
+  #     context: frontend/ 
+  #   ports: [80:80]
 
   broker-service:
     build:
