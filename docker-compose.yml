@@ -1,0 +1,9 @@
+volumes:
+  PersistentStorage: {}
+
+services:
+
+  broker-service:
+    build:
+      context: .
+    command: /app/broker-service

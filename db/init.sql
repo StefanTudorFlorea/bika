@@ -1,0 +1,4 @@
+CREATE TABLE Demo(
+    id SERIAL PRIMARY KEY, 
+    name TEXT
+);

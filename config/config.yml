@@ -1,0 +1,2 @@
+BrokerService:
+  port: 8080
