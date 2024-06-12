@@ -1,9 +1,9 @@
-# broker-service
+# auth-service
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS *.cpp)
-add_executable(broker-service ${SRC_FILES})
-target_include_directories(broker-service PUBLIC . ${CMAKE_SOURCE_DIR}/src)
+add_executable(auth-service ${SRC_FILES})
+target_include_directories(auth-service PUBLIC . ${CMAKE_SOURCE_DIR}/src)
 
-target_link_libraries(broker-service 
+target_link_libraries(auth-service 
     PRIVATE 
         fmt::fmt-header-only
         libpqxx::pqxx
@@ -16,7 +16,7 @@ target_link_libraries(broker-service
 
 # config for all services
 add_custom_command(
-    TARGET broker-service POST_BUILD
+    TARGET auth-service POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/config/services.yml
             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/services.yml)

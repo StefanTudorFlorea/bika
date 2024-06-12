@@ -41,25 +41,19 @@
         let payload = document.getElementById("payload");
         let received = document.getElementById("received");
 
-        brokerBtn.addEventListener("click", function() {
-            const body = {
-                method: 'GET',
-            };
-
-            fetch("http://localhost:8080/ping", body)
-                .then((res) => res.json())
-                .then((data) => {
-                    received.innerHTML = JSON.stringify(data, undefined, 4);
-                    if (data.error) {
-                        console.log(data.message);
-                    } else {
-                        output.innerHTML += `<br><strong>[broker]</strong>: ${data.message}`;
-                    }
-                })
-                .catch((error) => {
-                    output.innerHTML += "<br><br>[broker] Error:" + error;
-                });
-        });
+        brokerBtn.addEventListener("click", () => {
+        fetch("http://localhost:8080/ping", { method: 'GET' })
+            .then(res => res.json())
+            .then(data => {
+                received.innerHTML = JSON.stringify(data, null, 4);
+                output.innerHTML += data.error
+                    ? `<br><br>[broker] Error: ${data.message}`
+                    : `<br><strong>[broker]</strong>: ${data.message}`;
+            })
+            .catch(error => {
+                output.innerHTML += `<br><br>[broker] Error: ${error}`;
+            });
+    });
     </script>
 </body>
 </html>

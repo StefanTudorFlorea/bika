@@ -23,3 +23,4 @@ find_package(httplib       CONFIG REQUIRED)
 # services
 add_subdirectory(src/common)
 add_subdirectory(src/broker-service)
+add_subdirectory(src/auth-service)

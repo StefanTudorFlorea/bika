@@ -1,2 +1,5 @@
 BrokerService:
   port: 8080
+
+AuthService:
+  port: 8080

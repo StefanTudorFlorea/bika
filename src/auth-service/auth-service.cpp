@@ -9,7 +9,7 @@ int main() {
 
     // config
     YAML::Node config = YAML::LoadFile("services.yml");
-    int port = config["BrokerService"]["port"].as<int>();
+    int port = config["AuthService"]["port"].as<int>();
 
     // server
     httplib::Server app;
@@ -19,6 +19,6 @@ int main() {
     routes.add("GET", "/ping", handler::ping);
 
     // start
-    fmt::println("[broker-service]: listening on port {}", port);
+    fmt::println("[auth-service]: listening on port {}", port);
     app.listen("0.0.0.0", port);
 }

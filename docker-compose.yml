@@ -1,12 +1,28 @@
+volumes:
+  PersistentStorage: {}
+  
 services:
   # frontend:
   #   build:
   #     context: frontend/ 
   #   ports: [80:80]
 
+  #------------------------------------------------------------------------------
+  # BROKER
+  #------------------------------------------------------------------------------
   broker-service:
     build:
       dockerfile: services.Dockerfile
       context: .
     command: /app/broker-service
     ports: [8080:8080]
+
+  #------------------------------------------------------------------------------
+  # AUTH
+  #------------------------------------------------------------------------------
+  auth-service:
+    build:
+      dockerfile: services.Dockerfile
+      context: .
+    command: /app/auth-service
+    ports: [8081:8080]
