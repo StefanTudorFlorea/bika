@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "bika/Config.h"
 #include "bika/RestApi.h"
-#include "bika/Database.h"
+#include "bika/Postgres.h"
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ TEST_CASE("RestApi") {
 
 //---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("Database") {
-    bika::Database db{"localhost", "5432", "admin", "pwd123", "data"};
+    bika::Postgres db{"localhost", "5432", "admin", "pwd123", "data"};
 
     // read one
     {

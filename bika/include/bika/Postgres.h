@@ -5,7 +5,7 @@
 
 namespace bika {
 
-class Database {
+class Postgres {
 public:
     struct ConnectionParams {
         std::string_view host;
@@ -14,7 +14,7 @@ public:
         std::string_view password;
         std::string_view dbname;
     };
-    Database(std::string_view host, std::string_view port, std::string_view user, std::string_view password, std::string_view dbname);
+    Postgres(std::string_view host, std::string_view port, std::string_view user, std::string_view password, std::string_view dbname);
 
     // create a connection. we can have multiple open at the same time
     pqxx::connection connection();
