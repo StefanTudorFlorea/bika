@@ -3,3 +3,6 @@ BrokerService:
 
 AuthService:
   port: 8080
+
+LoggerService:
+  port: 8080

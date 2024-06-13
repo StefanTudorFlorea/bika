@@ -5,13 +5,8 @@ target_include_directories(broker-service PUBLIC . ${CMAKE_SOURCE_DIR}/src)
 
 target_link_libraries(broker-service 
     PRIVATE 
-        fmt::fmt-header-only
-        libpqxx::pqxx
-        Crow::Crow
-        nlohmann_json::nlohmann_json
-        yaml-cpp::yaml-cpp
-        httplib::httplib
         common
+        httplib::httplib
 )
 
 # config for all services

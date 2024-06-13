@@ -19,8 +19,11 @@ find_package(libpqxx       CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(yaml-cpp      CONFIG REQUIRED)
 find_package(httplib       CONFIG REQUIRED)
+find_package(bsoncxx       CONFIG REQUIRED)
+find_package(mongocxx      CONFIG REQUIRED)
 
 # services
 add_subdirectory(src/common)
 add_subdirectory(src/broker-service)
 add_subdirectory(src/auth-service)
+add_subdirectory(src/logger-service)

@@ -8,6 +8,7 @@
       "libpqxx",
       "nlohmann-json",
       "yaml-cpp",
-      "cpp-httplib"
+      "cpp-httplib",
+      "mongo-cxx-driver"
     ]
 }
