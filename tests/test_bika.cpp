@@ -1,7 +1,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
-#include "bika/Config.h"
 #include <cstdlib>
+#include "bika/Config.h"
+#include "bika/RestApi.h"
 
 
 TEST_CASE("Config") {
@@ -41,4 +42,17 @@ TEST_CASE("Config") {
     CHECK(config.get<bool>("types.boolVar") == true);
     CHECK(config.get<std::vector<int>>("types.listIntVar") == std::vector<int>{1,2,3,4});
     CHECK(config.get<std::vector<std::string>>("types.listStringVar") == std::vector<std::string>{"a", "b", "c"});
+}
+
+TEST_CASE("RestApi") {
+    bika::RestApi api;
+
+    api.add("GET", "/hello", [](auto req, auto& res) -> json {
+        return {
+            {"status", 200},
+            {"message", "hello world"}
+        };
+    });
+
+    // api.start("0.0.0.0", 8080);
 }
