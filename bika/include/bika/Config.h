@@ -18,7 +18,7 @@ public:
     Config(std::string_view filename);
 
     template<typename T>
-    T get(const std::string& path, std::optional<std::string> env = {}, std::optional<T> init = {}) const {
+    T get(std::optional<std::string> path, std::optional<std::string> env = {}, std::optional<T> init = {}) const {
 
         // detect local file changes
         _config = YAML::LoadFile(_filename);
@@ -32,13 +32,15 @@ public:
         }
 
         // search yaml
-        YAML::Node node = _config;
-        for (auto t : split(path, '.')) {
-            node = node[t];
-        }
-        if (node.IsDefined()) {
-            value = node.as<T>();
-            found = true;
+        if (path) {
+            YAML::Node node = _config;
+            for (auto t : split(path.value(), '.')) {
+                node = node[t];
+            }
+            if (node.IsDefined()) {
+                value = node.as<T>();
+                found = true;
+            }
         }
 
         // search env var

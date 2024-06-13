@@ -16,6 +16,9 @@ TEST_CASE("Config") {
     // static not there, take default
     CHECK(config.get<int>("path.does.not.exist", {}, 42) == 42);
 
+    // static not given, take default
+    CHECK(config.get<int>({}, {}, 42) == 42);
+
     // static there, take it even if default is present
     CHECK(config.get<int>("configuration.ports.web", {}, 42) == 8080);
 
@@ -37,6 +40,14 @@ TEST_CASE("Config") {
     // env var takes precedence if static not found and even if we have default
     setenv("CUSTOM_PORT", "1234", 1);
     CHECK(config.get<int>("path.does.not.exist", "CUSTOM_PORT", 42) == 1234);
+
+    // static not given, take env
+    setenv("CUSTOM_PORT", "1234", 1);
+    CHECK(config.get<int>({}, "CUSTOM_PORT", 42) == 1234);
+
+    // static not given, default not given
+    setenv("CUSTOM_PORT", "1234", 1);
+    CHECK(config.get<int>({}, "CUSTOM_PORT", {}) == 1234);
 
     // check types
     CHECK(config.get<std::string>("types.stringVar") == "hello world");
