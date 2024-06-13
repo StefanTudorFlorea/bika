@@ -3,8 +3,10 @@
 #include <cstdlib>
 #include "bika/Config.h"
 #include "bika/RestApi.h"
+#include "bika/Database.h"
 
 
+//---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("Config") {
     bika::Config config{"config.yml"};
 
@@ -44,6 +46,7 @@ TEST_CASE("Config") {
     CHECK(config.get<std::vector<std::string>>("types.listStringVar") == std::vector<std::string>{"a", "b", "c"});
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("RestApi") {
     bika::RestApi api;
 
@@ -59,4 +62,36 @@ TEST_CASE("RestApi") {
     });
 
     // api.start("0.0.0.0", 8080);
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+TEST_CASE("Database") {
+    bika::Database db{"localhost", "5432", "admin", "pwd123", "data"};
+
+    // read one
+    {
+        auto c = db.connection();
+        auto t = db.transaction(c);
+
+        auto[id, name, age] = t.query1<int, std::string, int>("SELECT id,name,age FROM Demo WHERE id = 1");
+    }
+
+    // read multiple
+    {
+        auto c = db.connection();
+        auto t = db.transaction(c);
+
+        for (const auto[id, name, age] : t.query<int, std::string, int>("SELECT id,name,age FROM Demo ORDER BY id")) {
+            // ...
+        }
+    }
+
+    // write
+    {
+        auto c = db.connection();
+        auto t = db.transaction(c);
+
+        t.exec("INSERT INTO Demo(name,age) VALUES('sfl', 404)");
+        t.commit();
+    }
 }
