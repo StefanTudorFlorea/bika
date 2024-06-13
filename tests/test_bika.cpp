@@ -54,5 +54,9 @@ TEST_CASE("RestApi") {
         };
     });
 
+    api.add("GET", "/ping", [](auto req, auto& res) {
+        return "OK";
+    });
+
     // api.start("0.0.0.0", 8080);
 }

@@ -8,7 +8,7 @@ find_package(httplib       CONFIG REQUIRED)
 # library
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp include/*.h)
 add_library(bika ${SRC_FILES})
-target_include_directories(bika PUBLIC . ${CMAKE_SOURCE_DIR}/bika/include)
+target_include_directories(bika PUBLIC . include/)
 
 # depedencies
 target_link_libraries(bika 
