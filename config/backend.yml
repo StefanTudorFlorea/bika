@@ -1,0 +1,3 @@
+Configuration:
+  ports:
+    webPort: 8080

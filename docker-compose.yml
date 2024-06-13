@@ -2,50 +2,21 @@ volumes:
   PersistentStorage: {}
   
 services:
-  #------------------------------------------------------------------------------
-  # FRONTEND
-  #------------------------------------------------------------------------------
-  # frontend:
-  #   build:
-  #     context: frontend/ 
-  #   ports: [80:80]
-
-  #------------------------------------------------------------------------------
-  # BROKER
-  #------------------------------------------------------------------------------
-  broker-service:
+ 
+  backend:
     build:
       dockerfile: services.Dockerfile
       context: .
-    command: /app/broker-service
+    command: /app/backend
     ports: [8080:8080]
-
-  #------------------------------------------------------------------------------
-  # AUTH
-  #------------------------------------------------------------------------------
-  auth-service:
-    build:
-      dockerfile: services.Dockerfile
-      context: .
-    command: /app/auth-service
-    ports: [8081:8080]
 
   postgres:
     image: postgres:latest
     environment:
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: demo123
+      POSTGRES_PASSWORD: pwd123
       POSTGRES_DB: users
+    ports: [5432:5432]
     volumes:
       - PersistentStorage:/var/lib/postgresql/data             
       - ./db/postgres.sql:/docker-entrypoint-initdb.d/init.sql
-
-  #------------------------------------------------------------------------------
-  # LOGGER
-  #------------------------------------------------------------------------------
-  logger-service:
-    build:
-      dockerfile: services.Dockerfile
-      context: .
-    command: /app/logger-service
-    ports: [8082:8080]

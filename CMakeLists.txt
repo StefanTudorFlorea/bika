@@ -12,18 +12,30 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # 3rd party
-find_package(Crow          CONFIG REQUIRED)
 find_package(doctest       CONFIG REQUIRED)
 find_package(fmt           CONFIG REQUIRED)
 find_package(libpqxx       CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(yaml-cpp      CONFIG REQUIRED)
 find_package(httplib       CONFIG REQUIRED)
-find_package(bsoncxx       CONFIG REQUIRED)
-find_package(mongocxx      CONFIG REQUIRED)
 
-# services
-add_subdirectory(src/common)
-add_subdirectory(src/broker-service)
-add_subdirectory(src/auth-service)
-add_subdirectory(src/logger-service)
+# backend
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
+add_executable(backend ${SRC_FILES})
+target_include_directories(backend PUBLIC . ${CMAKE_SOURCE_DIR}/src)
+
+target_link_libraries(backend 
+    PRIVATE 
+        httplib::httplib
+        libpqxx::pqxx
+        fmt::fmt-header-only
+        nlohmann_json::nlohmann_json
+        yaml-cpp::yaml-cpp
+)
+
+# config for all services
+add_custom_command(
+    TARGET backend POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/config/backend.yml
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/backend.yml)

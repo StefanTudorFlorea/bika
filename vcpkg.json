@@ -2,13 +2,11 @@
     "name": "application",
     "version": "1.0",
     "dependencies": [
-      "crow",    
       "doctest",
       "fmt",
       "libpqxx",
       "nlohmann-json",
       "yaml-cpp",
-      "cpp-httplib",
-      "mongo-cxx-driver"
+      "cpp-httplib"
     ]
 }
