@@ -10,6 +10,19 @@ using json = nlohmann::json;
 
 namespace bika {
 
+/*  Create a simple rest api server with cors enabled
+
+    Supported http methods: GET, POST, DELETE, PUT
+    Callbacks can either return a simple string or json
+
+    example: Add a GET /users
+        RestApi api;
+        api.add("GET", "/users", [](auto req, auto& res) {
+            return "OK";
+        });
+
+    See: https://github.com/yhirose/cpp-httplib
+*/
 class RestApi {
     using handler_t = std::function<nlohmann::json(httplib::Request, httplib::Response&)>;
 

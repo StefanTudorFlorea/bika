@@ -5,6 +5,17 @@
 
 namespace bika {
 
+/*  Connect to postgres database and allow to perform transactions
+    Create a connection per transaction
+
+    Usage:
+        Postgres db{...};
+        auto c = db.connection();
+        auto t = db.transaction(c);
+        t.query1, t.query, t.exec
+
+    See: https://github.com/jtv/libpqxx
+*/
 class Postgres {
 public:
     struct ConnectionParams {

@@ -13,6 +13,24 @@
 
 namespace bika {
 
+/*  Load configuration settings from a yaml file and override them with environment variables if necessary
+
+    Precedence:
+        1. (optional) load yaml settings
+        2. (optional) load env var
+        3. (optional) set defaults if no value found
+
+    Supported types: int, string, bool
+
+    example: Load from yaml, but if env var is specified, overwrite the result
+        Config cfg{"settings.yml"};
+        int port = cfg.get<int>("configuration.ports.web", "CUSTOM_PORT");
+
+    example: Just load directly from yaml
+        Config cfg{"settings.yml"};
+        int port = cfg.get<int>("configuration.ports.web");
+
+*/
 class Config {
 public:
     Config(std::string_view filename);
