@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <yaml-cpp/yaml.h>
 
+namespace bika {
 
 class Config {
 public:
@@ -18,11 +19,9 @@ public:
     }
 
     template<typename T>
-    T get(const std::string& path, 
-          std::optional<std::string> env = {}, 
-          std::optional<T> init = {}) {
+    T get(const std::string& path, std::optional<std::string> env = {}, std::optional<T> init = {}) {
 
-        T value = {};
+        T value{};
         bool found = false;
 
         if (init) {
@@ -74,3 +73,5 @@ private:
 private:
     YAML::Node _config;
 };
+
+} // ns bika
