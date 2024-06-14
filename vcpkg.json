@@ -7,6 +7,7 @@
       "libpqxx",
       "nlohmann-json",
       "yaml-cpp",
-      "cpp-httplib"
+      "cpp-httplib",
+      "cpr"
     ]
 }

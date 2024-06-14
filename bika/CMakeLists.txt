@@ -4,6 +4,7 @@ find_package(libpqxx       CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(yaml-cpp      CONFIG REQUIRED)
 find_package(httplib       CONFIG REQUIRED)
+find_package(cpr           CONFIG REQUIRED)
 
 # library
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp include/*.h)
@@ -18,6 +19,7 @@ target_link_libraries(bika
         fmt::fmt-header-only
         nlohmann_json::nlohmann_json
         yaml-cpp::yaml-cpp
+        cpr::cpr
 )
 
 # alias

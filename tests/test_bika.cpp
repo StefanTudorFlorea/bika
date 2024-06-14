@@ -73,6 +73,12 @@ TEST_CASE("RestApi") {
     });
 
     // api.start("0.0.0.0", 8080);
+
+    // test client
+    auto[status, text] = bika::RestApi::call("GET", "http://www.httpbin.org/get", 
+    "", cpr::Parameters{{"hello", "world"}});
+
+    std::cout << "response2: " << text;
 }
 
 //---------------------------------------------------------------------------------------------------------------------
