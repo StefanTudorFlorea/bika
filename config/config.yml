@@ -1,0 +1,10 @@
+configuration:
+  ports:
+    web: 8080
+
+types:
+  stringVar: hello world
+  intVar: 101
+  boolVar: true
+  listIntVar: [1,2,3,4]
+  listStringVar: ["a", "b", "c"]

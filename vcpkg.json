@@ -1,0 +1,13 @@
+{
+    "name": "application",
+    "version": "1.0",
+    "dependencies": [
+      "doctest",
+      "fmt",
+      "libpqxx",
+      "nlohmann-json",
+      "yaml-cpp",
+      "cpp-httplib",
+      "cpr"
+    ]
+}
