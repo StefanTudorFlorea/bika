@@ -17,7 +17,6 @@ Postgres::Postgres(std::string_view connectionString)
     // TODO: parse string to ConnectionParams
 }
 
-
 pqxx::connection Postgres::connection() const {
     return pqxx::connection(_connectionString);
 }

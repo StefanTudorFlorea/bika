@@ -15,6 +15,7 @@ std::vector<std::string> Config::split(const std::string& text, char delim) cons
     while(std::getline(iss, item, delim)) {
         tokens.push_back(item);
     }
+    
     return tokens;
 }
 

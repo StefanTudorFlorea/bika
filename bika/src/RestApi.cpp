@@ -25,18 +25,10 @@ std::tuple<int, std::string> RestApi::call(const std::string& method,
 
     // get a response
     cpr::Response r{};
-    if (method == "GET") {
-        r = cpr::Get(cpr::Url{url}, query, cpr::Body{body});
-    }
-    if (method == "POST") {
-        r = cpr::Post(cpr::Url{url}, query, cpr::Body{body});
-    }
-    if (method == "PUT") {
-        r = cpr::Put(cpr::Url{url}, query, cpr::Body{body});
-    }
-    if (method == "DELETE") {
-        r = cpr::Delete(cpr::Url{url}, query, cpr::Body{body});
-    }
+    if (method == "GET")    { r = cpr::Get(cpr::Url{url},    query, cpr::Body{body}); }
+    if (method == "POST")   { r = cpr::Post(cpr::Url{url},   query, cpr::Body{body}); }
+    if (method == "PUT")    { r = cpr::Put(cpr::Url{url},    query, cpr::Body{body}); }
+    if (method == "DELETE") { r = cpr::Delete(cpr::Url{url}, query, cpr::Body{body}); }
 
     // done
     return {r.status_code, r.text};
