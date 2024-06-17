@@ -61,21 +61,15 @@ TEST_CASE("Config") {
 TEST_CASE("RestApi") {
     bika::RestApi api;
 
-    api.add("GET", "/hello", [](auto req, auto& res) -> json {
-        return {
-            {"status", 200},
-            {"message", "hello world"}
-        };
-    });
-
-    api.add("GET", "/ping", [](auto req, auto& res) {
-        return "OK";
+    api.POST("/ping", [](auto req) -> bika::RestApi::Response {
+        return {200, "OK"};
     });
 
     // api.start("0.0.0.0", 8080);
 
     // test client
-    auto[status, text] = bika::RestApi::call("GET", "http://www.httpbin.org/get", {}, cpr::Parameters{{"hello", "world"}});
+    auto[status, text] = bika::RestApi::GET("http://www.httpbin.org/get", json{{"hello", "world"}}, "THIS IS MY BODY");
+    std::cout << "result2:" << text << std::endl;
 }
 
 //---------------------------------------------------------------------------------------------------------------------

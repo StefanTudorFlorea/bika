@@ -16,21 +16,17 @@ namespace bika {
 
 /*  Create a simple rest api server with cors enabled
     Or a simple client that calls rest api
-
     Supported http methods: GET, POST, DELETE, PUT
-    Callbacks can either return a simple string or json
 
-    example: Add a GET /users
+    example: Add a GET /ping
         RestApi api;
-        api.add("GET", "/users", [](auto req, auto& res) {
-            return "OK";
+        api.GET("/ping", [](auto req) -> bika::RestApi::Response {
+            return {200, "OK"};
         });
+        api.start("0.0.0.0", 8080);
 
     example: client that makes a post request with query params
-     auto[status, text] = bika::RestApi::call("POST", 
-                                              "http://www.httpbin.org/get", 
-                                              "body sample text",
-                                              cpr::Parameters{{"hello", "world"}});
+        auto[status, text] = bika::RestApi::GET("http://www.httpbin.org/get", json{{"hello", "world"}}, "body sample text");
 
     See: https://github.com/yhirose/cpp-httplib
     See: https://github.com/libcpr/cpr
@@ -39,21 +35,42 @@ class RestApi {
 public:
     using handler_t = std::function<nlohmann::json(httplib::Request, httplib::Response&)>;
 
-public:
-    // add a rest api route
-    void add(const std::string& method, const std::string& path, handler_t handler);
+    struct Request {
+        std::string body;
+        json headers;
+        json params;
+    };
+    struct Response {
+        int status       = 200;
+        std::string body = "";
+    };
+    using handler2_t = std::function<Response(Request)>;
 
-    // start the server
+public:
+    // server routes
+    void POST(const std::string& path, handler2_t handler);
+    void GET(const std::string& path, handler2_t handler);
+    void PUT(const std::string& path, handler2_t handler);
+    void DELETE(const std::string& path, handler2_t handler);
+
+    // run the server and listen to requests
     void start(const std::string& host, int port);
 
     // client
-    static std::tuple<int, std::string> call(const std::string& method,
-                                             const std::string& url,
-                                             const std::string& body = {},
-                                             const cpr::Parameters& query = {});
+    static Response POST(const std::string& url, const json& params={}, const std::string& body={});
+    static Response GET(const std::string& url, const json& params={}, const std::string& body={});
+    static Response PUT(const std::string& url, const json& params={}, const std::string& body={});
+    static Response DELETE(const std::string& url, const json& params={}, const std::string& body={});
+
 private:
     // set global cors headers
     void cors(httplib::Response& res);
+
+    // handle api requests
+    void handleApiCalls(const httplib::Request& req, httplib::Response& res, handler2_t handler);
+
+    // conversion
+    static cpr::Parameters fromJson(const json& params);
 
 private:
     httplib::Server _app;
