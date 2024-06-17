@@ -32,7 +32,8 @@ public:
     struct Request { 
         std::string body; 
         json headers; 
-        json params; 
+        json queryParams;
+        json pathParams; 
     };
     struct Response { 
         int status = 200; 

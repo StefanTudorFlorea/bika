@@ -34,7 +34,7 @@ void RestApi::handleApiCalls(const httplib::Request& req, httplib::Response& res
     cors(res);
 
     // process handler request,response
-    const Request r{req.body, req.params, req.headers};
+    const Request r{req.body, req.headers, req.params, req.path_params};
     Response out = handler(r);
 
     // prepare response
