@@ -16,14 +16,14 @@ public:
         std::string body = "";
     };
 
-    static Response POST(const std::string& url,   const json& params={}, const std::string& body={});
-    static Response GET(const std::string& url,    const json& params={}, const std::string& body={});
-    static Response PUT(const std::string& url,    const json& params={}, const std::string& body={});
-    static Response DELETE(const std::string& url, const json& params={}, const std::string& body={});
+    static Response POST(const std::string& url,   const json& params={}, const json& headers={}, const std::string& body={});
+    static Response GET(const std::string& url,    const json& params={}, const json& headers={}, const std::string& body={});
+    static Response PUT(const std::string& url,    const json& params={}, const json& headers={}, const std::string& body={});
+    static Response DELETE(const std::string& url, const json& params={}, const json& headers={}, const std::string& body={});
 
 private:
     // conversion
-    static cpr::Parameters fromJson(const json& params);
+    static cpr::Parameters toCprParams(const json& params);
 };
 
 } // ns bika
