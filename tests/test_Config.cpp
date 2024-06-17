@@ -2,9 +2,7 @@
 #include <doctest/doctest.h>
 #include <cstdlib>
 #include "bika/Config.h"
-#include "bika/RestApi.h"
-#include "bika/Postgres.h"
-#include "bika/Http.h"
+
 
 //---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("Config") {
@@ -55,54 +53,4 @@ TEST_CASE("Config") {
     CHECK(config.get<bool>("types.boolVar") == true);
     CHECK(config.get<std::vector<int>>("types.listIntVar") == std::vector<int>{1,2,3,4});
     CHECK(config.get<std::vector<std::string>>("types.listStringVar") == std::vector<std::string>{"a", "b", "c"});
-}
-
-//---------------------------------------------------------------------------------------------------------------------
-TEST_CASE("RestApi") {
-    bika::RestApi api;
-
-    api.POST("/ping", [](auto req) -> bika::RestApi::Response {
-        return {200, "OK"};
-    });
-
-    // api.start("0.0.0.0", 8080);
-}
-
-//---------------------------------------------------------------------------------------------------------------------
-TEST_CASE("Http") {
-    auto[status, text] = bika::Http::GET("http://www.httpbin.org/get", json{{"hello", "world"}}, "THIS IS MY BODY");
-    std::cout << "result2:" << text << std::endl;
-}
-
-
-//---------------------------------------------------------------------------------------------------------------------
-TEST_CASE("Database") {
-    bika::Postgres db{"localhost", "5432", "admin", "pwd123", "data"};
-
-    // read one
-    {
-        auto c = db.connection();
-        auto t = db.transaction(c);
-
-        auto[id, name, age] = t.query1<int, std::string, int>("SELECT id,name,age FROM Demo WHERE id = 1");
-    }
-
-    // read multiple
-    {
-        auto c = db.connection();
-        auto t = db.transaction(c);
-
-        for (const auto[id, name, age] : t.query<int, std::string, int>("SELECT id,name,age FROM Demo ORDER BY id")) {
-            // ...
-        }
-    }
-
-    // write
-    {
-        auto c = db.connection();
-        auto t = db.transaction(c);
-
-        t.exec("INSERT INTO Demo(name,age) VALUES('sfl', 404)");
-        t.commit();
-    }
 }

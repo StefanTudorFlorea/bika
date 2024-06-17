@@ -13,11 +13,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
 add_subdirectory(bika/)
 
 # testing
-find_package(doctest CONFIG REQUIRED)
-add_executable(test_bika tests/test_bika.cpp)
-target_link_libraries(test_bika PRIVATE sfl::bika doctest::doctest)
-add_custom_command(
-    TARGET test_bika POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/config/config.yml
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/config.yml)
+add_subdirectory(tests/)
