@@ -4,7 +4,7 @@
 #include "bika/Config.h"
 #include "bika/RestApi.h"
 #include "bika/Postgres.h"
-
+#include "bika/Http.h"
 
 //---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("Config") {
@@ -66,11 +66,14 @@ TEST_CASE("RestApi") {
     });
 
     // api.start("0.0.0.0", 8080);
+}
 
-    // test client
-    auto[status, text] = bika::RestApi::GET("http://www.httpbin.org/get", json{{"hello", "world"}}, "THIS IS MY BODY");
+//---------------------------------------------------------------------------------------------------------------------
+TEST_CASE("Http") {
+    auto[status, text] = bika::Http::GET("http://www.httpbin.org/get", json{{"hello", "world"}}, "THIS IS MY BODY");
     std::cout << "result2:" << text << std::endl;
 }
+
 
 //---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("Database") {

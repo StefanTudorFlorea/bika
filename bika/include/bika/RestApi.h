@@ -1,12 +1,8 @@
 #pragma once
-
-#include <cpr/cpr.h>
 #include <functional>
 #include <httplib.h>
 #include <nlohmann/json.hpp>
-#include <optional>
 #include <string>
-#include <utility>
 
 
 // acceptable to have project wide rename
@@ -33,44 +29,33 @@ namespace bika {
 */
 class RestApi {
 public:
-    using handler_t = std::function<nlohmann::json(httplib::Request, httplib::Response&)>;
-
-    struct Request {
-        std::string body;
-        json headers;
-        json params;
+    struct Request { 
+        std::string body; 
+        json headers; 
+        json params; 
     };
-    struct Response {
-        int status       = 200;
-        std::string body = "";
+    struct Response { 
+        int status = 200; 
+        std::string body = ""; 
     };
-    using handler2_t = std::function<Response(Request)>;
+    using handler_t = std::function<Response(Request)>;
 
 public:
     // server routes
-    void POST(const std::string& path, handler2_t handler);
-    void GET(const std::string& path, handler2_t handler);
-    void PUT(const std::string& path, handler2_t handler);
-    void DELETE(const std::string& path, handler2_t handler);
+    void POST(const std::string& path,   handler_t handler);
+    void GET(const std::string& path,    handler_t handler);
+    void PUT(const std::string& path,    handler_t handler);
+    void DELETE(const std::string& path, handler_t handler);
 
     // run the server and listen to requests
     void start(const std::string& host, int port);
-
-    // client
-    static Response POST(const std::string& url, const json& params={}, const std::string& body={});
-    static Response GET(const std::string& url, const json& params={}, const std::string& body={});
-    static Response PUT(const std::string& url, const json& params={}, const std::string& body={});
-    static Response DELETE(const std::string& url, const json& params={}, const std::string& body={});
 
 private:
     // set global cors headers
     void cors(httplib::Response& res);
 
     // handle api requests
-    void handleApiCalls(const httplib::Request& req, httplib::Response& res, handler2_t handler);
-
-    // conversion
-    static cpr::Parameters fromJson(const json& params);
+    void handleApiCalls(const httplib::Request& req, httplib::Response& res, handler_t handler);
 
 private:
     httplib::Server _app;
