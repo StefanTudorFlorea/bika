@@ -8,16 +8,14 @@ TEST_CASE("Postgres") {
 
     // read one
     {
-        auto c = db.connection();
-        auto t = db.transaction(c);
+        auto t = db.transaction();
 
         auto[id, name, age] = t.query1<int, std::string, int>("SELECT id,name,age FROM Demo WHERE id = 1");
     }
 
     // read multiple
     {
-        auto c = db.connection();
-        auto t = db.transaction(c);
+        auto t = db.transaction();
 
         for (const auto[id, name, age] : t.query<int, std::string, int>("SELECT id,name,age FROM Demo ORDER BY id")) {
             // ...
@@ -26,8 +24,7 @@ TEST_CASE("Postgres") {
 
     // write
     {
-        auto c = db.connection();
-        auto t = db.transaction(c);
+        auto t = db.transaction();
 
         t.exec("INSERT INTO Demo(name,age) VALUES('sfl', 404)");
         t.commit();

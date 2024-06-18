@@ -1,45 +1,45 @@
 #pragma once
 #include <string_view>
 #include <string>
+#include <memory>
+#include <vector>
 #include <pqxx/pqxx>
-
+#include <mutex>
 
 namespace bika {
 
 /*  Connect to postgres database and allow to perform transactions
-    Create a connection per transaction
+    Uses a connection from the pool automatically for a transaction
 
     Usage:
         Postgres db{...};
-        auto c = db.connection();
-        auto t = db.transaction(c);
+        auto t = db.transaction();
         t.query1, t.query, t.exec
 
     See: https://github.com/jtv/libpqxx
 */
 class Postgres {
 public:
-    struct ConnectionParams {
-        std::string_view host;
-        std::string_view port;
-        std::string_view user;
-        std::string_view password;
-        std::string_view dbname;
-    };
     Postgres(std::string_view host, std::string_view port, std::string_view user, std::string_view password, std::string_view dbname);
 
-    // Input of form: "host={} port={} user={} password={} dbname={}" in any order, but with ws
-    Postgres(std::string_view connectionString);
-
-    // create a connection. we can have multiple open at the same time
-    pqxx::connection connection() const;
-
     // a connection can have only one transaction open at the same time
-    pqxx::work transaction(pqxx::connection& connection) const;
+    pqxx::work transaction();
 
 private:
-    ConnectionParams _params;
+    // get next available connection in the pool
+    static pqxx::connection& connection();
+
+    // create pool of connection
+    static void initPool(const std::string& connectionString);
+
+private:
     std::string _connectionString;
+
+    // pool settings
+    static inline std::vector<std::unique_ptr<pqxx::connection>> _pool;
+    static inline std::vector<std::unique_ptr<pqxx::connection>>::iterator _next;
+    static inline std::mutex _mtx;
+    static inline std::once_flag _init;
 };
 
 } // ns bika
