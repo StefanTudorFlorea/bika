@@ -26,20 +26,25 @@ public:
     pqxx::work transaction();
 
 private:
-    // get next available connection in the pool
-    static pqxx::connection& connection();
-
-    // create pool of connection
-    static void initPool(const std::string& connectionString);
+    std::string _connectionString;
+    std::once_flag _initPool;
 
 private:
-    std::string _connectionString;
+    class ConnectionPool {
+        public:
+            static ConnectionPool& instance();
+            void init(const std::string& connectionString, int poolSize);
+            pqxx::connection& getConnection();
 
-    // pool settings
-    static inline std::vector<std::unique_ptr<pqxx::connection>> _pool;
-    static inline std::vector<std::unique_ptr<pqxx::connection>>::iterator _next;
-    static inline std::mutex _mtx;
-    static inline std::once_flag _init;
+        private:
+            ConnectionPool() = default;
+            ConnectionPool(const ConnectionPool&) = delete;
+
+        private:
+            std::vector<std::unique_ptr<pqxx::connection>> _pool;
+            std::vector<std::unique_ptr<pqxx::connection>>::iterator _next;
+            std::mutex _mtx;
+    };
 };
 
 } // ns bika

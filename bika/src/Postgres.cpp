@@ -9,33 +9,36 @@ Postgres::Postgres(std::string_view host, std::string_view port, std::string_vie
 
     _connectionString = fmt::format("host={} port={} user={} password={} dbname={}", host, port, user, password, dbname);
 
-    std::call_once(Postgres::_init, [c = _connectionString](){
-        Postgres::initPool(c);
+    std::call_once(_initPool, [c = _connectionString](){
+        Postgres::ConnectionPool::instance().init(c, 16);
     });
 }
 
-void Postgres::initPool(const std::string& connectionString) {
+pqxx::work Postgres::transaction() {
+    return pqxx::work{Postgres::ConnectionPool::instance().getConnection()};
+}
 
-    const int maxConnections = std::thread::hardware_concurrency();
-    for (int i = 0; i < maxConnections; ++i) {
+Postgres::ConnectionPool& Postgres::ConnectionPool::instance() {
+    static Postgres::ConnectionPool instance;
+    return instance;
+}
+
+void Postgres::ConnectionPool::init(const std::string& connectionString, int poolSize) {
+    for (int i = 0; i < poolSize; ++i) {
         _pool.push_back(std::make_unique<pqxx::connection>(connectionString));
     }
-
     _next = _pool.begin();
 }
 
-pqxx::connection& Postgres::connection() {
+pqxx::connection& Postgres::ConnectionPool::getConnection() {
     std::lock_guard l{_mtx};
 
-    if (Postgres::_next == _pool.end()) {
-        Postgres::_next = _pool.begin();
+    if (_next == _pool.end()) {
+        _next = _pool.begin();
     }
 
-    return *(Postgres::_next++)->get();
+    return *(_next++)->get();
 }
 
-pqxx::work Postgres::transaction() {
-    return pqxx::work{Postgres::connection()};
-}
 
 } // ns bika
