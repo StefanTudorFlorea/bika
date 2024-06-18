@@ -2,14 +2,6 @@ volumes:
   PersistentStorage: {}
   
 services:
- 
-  backend:
-    build:
-      dockerfile: services.Dockerfile
-      context: .
-    command: /app/backend
-    ports: [8080:8080]
-
   postgres:
     image: postgres:latest
     environment:

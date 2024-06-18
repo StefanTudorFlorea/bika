@@ -7,8 +7,8 @@ namespace bika {
 
 Postgres::Postgres(std::string_view host, std::string_view port, std::string_view user, std::string_view password, std::string_view dbname) {
 
+    // initialize the pool with connections
     _connectionString = fmt::format("host={} port={} user={} password={} dbname={}", host, port, user, password, dbname);
-
     std::call_once(_initPool, [c = _connectionString](){
         Postgres::ConnectionPool::instance().init(c, 16);
     });

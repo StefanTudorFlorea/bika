@@ -4,7 +4,7 @@
 
 //---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("Postgres") {
-    bika::Postgres db{"localhost", "5432", "admin", "pwd123", "data"};
+    bika::Postgres db{"localhost", "5432", "admin", "pwd123", "users"};
 
     // read one
     {
