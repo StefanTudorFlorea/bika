@@ -1,12 +1,10 @@
 #pragma once
-#include <memory>
 #include <mutex>
 #include <nlohmann/json.hpp>
 #include <pqxx/pqxx>
 #include <string_view>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include <yaml-cpp/yaml.h>
 
 
@@ -66,32 +64,7 @@ private:
 private:
     std::string _connectionString; // format: 'host={} port={} user={} password={} dbname={}'
     std::once_flag _initPool; // initialize once the connection pool
-    std::unordered_map<std::string, std::string> _preparedStatements; // Name -> SQL Query
-
-private:
-    // REFACTOR: move to own class
-    class ConnectionPool {
-        public:
-            static ConnectionPool& instance();
-
-            // initialize the pool with poolSize number of connections using connectionString = 'host={} port={} user={} password={} dbname={}'
-            void init(const std::string& connectionString, int poolSize);
-
-            // get next available connection from the pool
-            pqxx::connection& getConnection();
-
-            // load the prepared statements to each connection in the pool
-            void prepareStatements(const std::unordered_map<std::string, std::string>& statements);
-
-        private:
-            ConnectionPool() = default;
-            ConnectionPool(const ConnectionPool&) = delete;
-
-        private:
-            std::vector<std::unique_ptr<pqxx::connection>> _pool;
-            std::vector<std::unique_ptr<pqxx::connection>>::iterator _next;
-            std::mutex _mtx;
-    };
+    std::unordered_map<std::string, std::string> _preparedStatements; // Name -> SQL Query    
 };
 
 } // ns bika
