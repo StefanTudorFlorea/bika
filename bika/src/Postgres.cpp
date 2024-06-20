@@ -50,6 +50,7 @@ nlohmann::json Postgres::to_json(const pqxx::row& row) {
         T_bool = 16,
         T_int4 = 23,
         T_text = 25
+        // TODO: add support for timestamp
     };
 
     // scan each column in the row for name and type so we can assign to json
