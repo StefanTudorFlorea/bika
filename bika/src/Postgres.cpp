@@ -6,69 +6,24 @@
 #include <vector>
 
 
-//---------------------------------------------------------------------------------------------------------------------
-// Connection Pool: used internally
-//---------------------------------------------------------------------------------------------------------------------
-class ConnectionPool {
-public:
-    static ConnectionPool& instance() {
-        static ConnectionPool instance;
-        return instance;
-    }
-
-    // initialize the pool with poolSize number of connections using connectionString = 'host={} port={} user={} password={} dbname={}'
-    void init(const std::string& connectionString, int poolSize) {
-        for (int i = 0; i < poolSize; ++i) {
-            _pool.push_back(std::make_unique<pqxx::connection>(connectionString));
-        }
-        _next = _pool.begin();
-    }
-
-    // get next available connection from the pool
-    pqxx::connection& getConnection() {
-        std::lock_guard l{_mtx};
-        if (_next == _pool.end()) {
-            _next = _pool.begin();
-        }
-        return *(_next++)->get();
-    }
-
-    // load the prepared statements to each connection in the pool
-    void prepareStatements(const std::unordered_map<std::string, std::string>& statements) {
-        for (std::unique_ptr<pqxx::connection>& c : _pool) {
-            for (auto[statementName, statementQuery] : statements) {
-                c.get()->prepare(statementName, statementQuery);
-            }
-        }
-    }
-
-private:
-    ConnectionPool() = default;
-    ConnectionPool(const ConnectionPool&) = delete;
-
-private:
-    std::vector<std::unique_ptr<pqxx::connection>> _pool;
-    std::vector<std::unique_ptr<pqxx::connection>>::iterator _next;
-    std::mutex _mtx;
-};
-
-
-//---------------------------------------------------------------------------------------------------------------------
-// Postgres
-//---------------------------------------------------------------------------------------------------------------------
 namespace bika {
 
 Postgres::Postgres(std::string_view host, std::string_view port, std::string_view user, std::string_view password, std::string_view dbname) {
-
-    // initialize the pool with connections
     _connectionString = fmt::format("host={} port={} user={} password={} dbname={}", host, port, user, password, dbname);
-    std::call_once(_initPool, [c = _connectionString](){
-        ConnectionPool::instance().init(c, 16);
-    });
 }
 
-pqxx::work Postgres::transaction() {
-    return pqxx::work{ConnectionPool::instance().getConnection()};
+pqxx::connection Postgres::connection() {
+    pqxx::connection c = pqxx::connection{_connectionString};
+
+    // each connection must be aware of the optional prepared statements
+    for (const auto[name, query] : _preparedStatements) {
+        c.prepare(name, query);
+    }
+    return c;
+}
+
+pqxx::work Postgres::transaction(pqxx::connection& conn) {
+    return pqxx::work{conn};
 }
 
 void Postgres::loadPreparedStatements(const YAML::Node& queries) {
@@ -80,9 +35,6 @@ void Postgres::loadPreparedStatements(const YAML::Node& queries) {
 
         _preparedStatements.insert({name, query});
     }
-
-    // add them to all connections
-    ConnectionPool::instance().prepareStatements(_preparedStatements);
 }
 
 nlohmann::json Postgres::to_json(const pqxx::row& row) {

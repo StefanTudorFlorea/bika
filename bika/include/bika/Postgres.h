@@ -11,9 +11,9 @@
 namespace bika {
 
 /*  Connect to postgres database and allow to perform either manual or prepared transactions
-    Can dynamically load prepared statements and uses a connection pool
+    Can dynamically load prepared statements
 
-    Usage-2: Loading prepared statements from a config file (preferred way)
+    Usage-1: Loading prepared statements from a config file (preferred way)
 
         // GetUserById: SELECT id,name,age,married FROM Demo WHERE id = $1
         // CreateUser: INSERT INTO Demo(name,age,married) VALUES($1, $2, $3)
@@ -29,7 +29,8 @@ namespace bika {
 
     Usage-2: Manually creating statements using the library syntax
         Postgres db{...};
-        auto t = db.transaction();
+        auto c = db.connection();
+        auto t = db.transaction(c);
         t.query1, t.query, t.exec
 
     See: https://github.com/jtv/libpqxx
@@ -44,7 +45,8 @@ public:
     // execute a prepared statement from the pre-loaded prepared statements
     template<typename... Args>
     nlohmann::json executePrepared(const std::string& statement, Args &&...args) {
-        pqxx::work t = transaction();
+        pqxx::connection c = connection();
+        pqxx::work t = transaction(c);
         
         // TODO: add support for transactions
         pqxx::result r = t.exec_prepared(statement, args...);
@@ -54,7 +56,8 @@ public:
     }
 
     // usage-2: create manual transactions. Connection is automatically associated with the transaction
-    pqxx::work transaction();
+    pqxx::connection connection();
+    pqxx::work transaction(pqxx::connection& conn);
 
 private:
     // convert result to json which makes it easier for the user to work with
@@ -66,7 +69,6 @@ private:
 
 private:
     std::string _connectionString; // format: 'host={} port={} user={} password={} dbname={}'
-    std::once_flag _initPool; // initialize once the connection pool
     std::unordered_map<std::string, std::string> _preparedStatements; // Name -> SQL Query    
 };
 

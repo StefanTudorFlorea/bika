@@ -12,5 +12,5 @@ types:
 postgres:
   queries:
     GetUserById: SELECT id,name,age,married FROM Demo WHERE id = $1
-    CreateUser: INSERT INTO Demo(name,age,married) VALUES($1, $2, $3)
+    CreateUser:  INSERT INTO Demo(name,age,married) VALUES($1, $2, $3)
     GetAllUsers: SELECT * FROM Demo
