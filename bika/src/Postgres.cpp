@@ -63,6 +63,7 @@ nlohmann::json Postgres::to_json(const pqxx::row& row) {
         const std::string colVal  = field.as<std::string>();
         jrow[colName] = colVal;
 
+        fmt::println("(postgres) name: {} -> type: {}", colName, colType)
 
         // if we can convert the type, let's create a better type
         if (colType == DataType::T_bool) jrow[colName] = field.as<bool>();
