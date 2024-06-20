@@ -30,10 +30,10 @@ namespace bika {
 class RestApi {
 public:
     struct Request { 
-        std::string body; 
-        json headers; 
-        json queryParams;
-        json pathParams; 
+        std::string body; // sent with POST => usually convert to json
+        json headers;     // usually for auth => Access headers["Authorization"]
+        json queryParams; // ?name=stefan&age=42 => Access queryParams["name"], queryParams["age"]
+        json pathParams;  // /users/:id, /users/:name => Access pathParams["id"], pathParams["name"]
     };
     struct Response { 
         int status = 200; 

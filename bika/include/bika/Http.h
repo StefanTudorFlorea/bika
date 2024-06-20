@@ -9,6 +9,12 @@ using json = nlohmann::json;
 
 namespace bika {
 
+/*  Http client that allows to make post,get,put,delete requests to an endpoint
+    Accepts optional params, headers and body
+
+    usage: 
+        auto[status, text] = bika::Http::GET("http://www.httpbin.org/get", json{{"name", "stefan"}, {"age", 42}});
+*/
 class Http {
 public:
     struct Response {

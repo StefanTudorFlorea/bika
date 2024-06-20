@@ -1,5 +1,4 @@
 #pragma once
-
 #include <algorithm>
 #include <cstdlib>
 #include <fmt/core.h>
@@ -14,6 +13,7 @@
 namespace bika {
 
 /*  Load configuration settings from a yaml file and override them with environment variables if necessary
+    If value is not found it throws std::runtime_error
 
     Precedence:
         1. (optional) load yaml settings
@@ -30,16 +30,21 @@ namespace bika {
         Config cfg{"settings.yml"};
         int port = cfg.get<int>("configuration.ports.web");
 
+    example: Load a generic node
+        Config cfg{"settings.yml"};
+        YAML::Node node = cfg.get<YAML::Node>("postgres.queries");
+
 */
 class Config {
 public:
     Config(std::string_view filename);
 
+    // get path -> env -> init in this order if they are not found. Throws if nothing is found
     template<typename T>
     T get(std::optional<std::string> path, std::optional<std::string> env = {}, std::optional<T> init = {}) const {
 
         // detect local file changes
-        _config = YAML::LoadFile(_filename);
+        YAML::Node config = YAML::LoadFile(_filename);
 
         // set init as fallback option
         T value{};
@@ -51,7 +56,7 @@ public:
 
         // search yaml
         if (path) {
-            YAML::Node node = _config;
+            YAML::Node node = config;
             for (auto t : split(path.value(), '.')) {
                 node = node[t];
             }
@@ -69,6 +74,7 @@ public:
             }
         }
 
+        // TODO: return optional instead of throwing
         // no default, no env, no static found
         if (!found) {
             throw std::runtime_error("value not found");
@@ -95,7 +101,6 @@ private:
     std::vector<std::string> split(const std::string& text, char delim) const;
 
 private:
-    mutable YAML::Node _config;
     const std::string _filename;
 };
 

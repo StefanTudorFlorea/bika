@@ -1,21 +1,35 @@
 #pragma once
+#include <memory>
+#include <mutex>
+#include <nlohmann/json.hpp>
+#include <pqxx/pqxx>
 #include <string_view>
 #include <string>
-#include <memory>
-#include <vector>
 #include <unordered_map>
-#include <pqxx/pqxx>
-#include <mutex>
+#include <vector>
 #include <yaml-cpp/yaml.h>
-#include <nlohmann/json.hpp>
 
 
 namespace bika {
 
-/*  Connect to postgres database and allow to perform transactions
-    Uses a connection from the pool automatically for a transaction
+/*  Connect to postgres database and allow to perform either manual or prepared transactions
+    Can dynamically load prepared statements and uses a connection pool
 
-    Usage:
+    Usage-2: Loading prepared statements from a config file (preferred way)
+
+        // GetUserById: SELECT id,name,age,married FROM Demo WHERE id = $1
+        // CreateUser: INSERT INTO Demo(name,age,married) VALUES($1, $2, $3)
+        bika::Config config{"config.yml"};
+        db.loadPreparedStatements(config.get<YAML::Node>("postgres.queries"));
+
+        // read
+        nlohmann::json res = db.executePrepared("GetAllUsers");
+
+        // write
+        nlohmann::json res = db.executePrepared("CreateUser", ...);
+
+
+    Usage-2: Manually creating statements using the library syntax
         Postgres db{...};
         auto t = db.transaction();
         t.query1, t.query, t.exec
@@ -26,35 +40,47 @@ class Postgres {
 public:
     Postgres(std::string_view host, std::string_view port, std::string_view user, std::string_view password, std::string_view dbname);
 
-    // optional: load a configuration with queryName: queryValue format
+    // usage-1: load a configuration with 'queryName: queryValue' format(optional)
     void loadPreparedStatements(const YAML::Node& queries);
 
-    // a connection can have only one transaction open at the same time
-    pqxx::work transaction();
-
-    // execute a prepared statement
+    // execute a prepared statement from the pre-loaded prepared statements
     template<typename... Args>
     nlohmann::json executePrepared(const std::string& statement, Args &&...args) {
         pqxx::work t = transaction();
+        
+        // TODO: add support for transactions
         pqxx::result r = t.exec_prepared(statement, args...);
         t.commit();
 
         return to_json(r);
     }
+
+    // usage-2: create manual transactions. Connection is automatically associated with the transaction
+    pqxx::work transaction();
+
+private:
+    // convert result to json which makes it easier for the user to work with
+    // @return json object or array depending if result returns one or multiple results
     nlohmann::json to_json(const pqxx::result& result);
 
 private:
-    std::string _connectionString;
-    std::once_flag _initPool;
-    std::unordered_map<std::string, std::string> _preparedStatements;
+    std::string _connectionString; // format: 'host={} port={} user={} password={} dbname={}'
+    std::once_flag _initPool; // initialize once the connection pool
+    std::unordered_map<std::string, std::string> _preparedStatements; // Name -> SQL Query
 
 private:
+    // REFACTOR: move to own class
     class ConnectionPool {
         public:
             static ConnectionPool& instance();
+
+            // initialize the pool with poolSize number of connections using connectionString = 'host={} port={} user={} password={} dbname={}'
             void init(const std::string& connectionString, int poolSize);
+
+            // get next available connection from the pool
             pqxx::connection& getConnection();
 
+            // load the prepared statements to each connection in the pool
             void prepareStatements(const std::unordered_map<std::string, std::string>& statements);
 
         private:
