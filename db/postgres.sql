@@ -2,7 +2,8 @@ CREATE TABLE Demo(
     "id"      SERIAL PRIMARY KEY, 
     "name"    TEXT,
     "age"     INT,
-    "married" BOOLEAN
+    "married" BOOLEAN,
+    "created_at" TIMESTAMP NOT NULL DEFAULT (now())
 );
 
 INSERT INTO Demo(name, age, married) VALUES

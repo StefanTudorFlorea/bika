@@ -61,6 +61,9 @@ private:
     // @return json object or array depending if result returns one or multiple results
     nlohmann::json to_json(const pqxx::result& result);
 
+    // convert one row to json with correct data types
+    nlohmann::json to_json(const pqxx::row& row);
+
 private:
     std::string _connectionString; // format: 'host={} port={} user={} password={} dbname={}'
     std::once_flag _initPool; // initialize once the connection pool
