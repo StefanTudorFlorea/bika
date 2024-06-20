@@ -37,6 +37,7 @@ namespace bika {
 */
 class Postgres {
 public:
+    Postgres(std::string_view connectionString);
     Postgres(std::string_view host, std::string_view port, std::string_view user, std::string_view password, std::string_view dbname);
 
     // usage-1: load a configuration with 'queryName: queryValue' format(optional)
