@@ -48,10 +48,16 @@ public:
         pqxx::connection c = connection();
         pqxx::work t = transaction(c);
         
-        // TODO: add support for transactions
         pqxx::result r = t.exec_prepared(statement, args...);
         t.commit();
 
+        return to_json(r);
+    }
+
+    // execute a prepared statement in an open transaction. User must commit the transaction when finished
+    template<typename... Args>
+    nlohmann::json executePrepared(pqxx::work& t, const std::string& statement, Args &&...args) {
+        pqxx::result r = t.exec_prepared(statement, args...);
         return to_json(r);
     }
 
