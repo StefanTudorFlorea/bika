@@ -1,6 +1,26 @@
 #include <doctest/doctest.h>
+#include <fmt/core.h>
 #include "bika/Postgres.h"
+#include "bika/Config.h"
 
+//---------------------------------------------------------------------------------------------------------------------
+TEST_CASE("Postgres - dynamic query") {
+    bika::Postgres db{"localhost", "5432", "admin", "pwd123", "users"};
+    bika::Config config{"config.yml"};
+
+    db.loadPreparedStatements(config.get<YAML::Node>("postgres.queries"));
+
+    // read
+    // nlohmann::json j = db.executePrepared("GetUserById", 1);
+    // fmt::print("result: {}", j.dump());
+
+    // write
+    // db.executePrepared("CreateUser", "and", 66, false);
+
+    // get all
+    nlohmann::json j = db.executePrepared("GetAllUsers");
+    fmt::print("result: {}", j.dump());
+}
 
 //---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("Postgres") {
