@@ -8,6 +8,7 @@
       "nlohmann-json",
       "yaml-cpp",
       "cpp-httplib",
-      "cpr"
+      "cpr",
+      "json-schema-validator"
     ]
 }

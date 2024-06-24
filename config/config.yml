@@ -14,3 +14,28 @@ postgres:
     GetUserById: SELECT id,name,age,married FROM Demo WHERE id = $1
     CreateUser:  INSERT INTO Demo(name,age,married) VALUES($1, $2, $3)
     GetAllUsers: SELECT * FROM Demo
+
+
+validators:
+  Schema: |
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "A person",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Name",
+          "type": "string"
+        },
+        "age": {
+          "description": "Age of the person",
+          "type": "number",
+          "minimum": 2,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "name",
+        "age"
+      ]
+    }
