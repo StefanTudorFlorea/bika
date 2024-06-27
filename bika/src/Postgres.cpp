@@ -32,6 +32,16 @@ pqxx::work Postgres::transaction(pqxx::connection& conn) {
     return pqxx::work{conn};
 }
 
+nlohmann::json Postgres::execute(const std::string& query) {
+    pqxx::connection c = connection();
+    pqxx::work t = transaction(c);
+    
+    pqxx::result r = t.exec(query);
+    t.commit();
+
+    return to_json(r);
+}
+
 void Postgres::loadPreparedStatements(const YAML::Node& queries) {
 
     // scan for the statements

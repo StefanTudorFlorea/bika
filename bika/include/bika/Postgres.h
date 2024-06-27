@@ -43,6 +43,9 @@ public:
     // usage-1: load a configuration with 'queryName: queryValue' format(optional)
     void loadPreparedStatements(const YAML::Node& queries);
 
+    // execute a query
+    nlohmann::json execute(const std::string& query);
+
     // execute a prepared statement from the pre-loaded prepared statements
     template<typename... Args>
     nlohmann::json executePrepared(const std::string& statement, Args &&...args) {
