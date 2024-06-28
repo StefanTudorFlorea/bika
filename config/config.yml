@@ -2,6 +2,11 @@ configuration:
   ports:
     web: 8080
 
+sample:
+  config:
+    var: "hello world"
+    port: 8080
+
 types:
   stringVar: hello world
   intVar: 101
