@@ -24,8 +24,13 @@ TEST_CASE("Cfg") {
     }
 
     SUBCASE("listIntVar") {
-        // std::vector<int> val = config.cfg("types.listIntVar");
-        // CHECK(val == std::vector<int>{1,2,3,4});
+        std::vector<int> val = config.cfg("types.listIntVar");
+        CHECK(val == std::vector<int>{1,2,3,4});
+    }
+
+    SUBCASE("listStringVar") {
+        std::vector<std::string> val = config.cfg("types.listStringVar");
+        CHECK(val == std::vector<std::string>{"a", "b", "c"});
     }
 }
 
@@ -46,6 +51,16 @@ TEST_CASE("Val") {
     SUBCASE("boolType") {
         bool val = config.val(true);
         CHECK(val == true);
+    }
+
+    SUBCASE("listIntVar") {
+        std::vector<int> val = config.val(std::vector<int>{1,2,3,4});
+        CHECK(val == std::vector<int>{1,2,3,4});
+    }
+
+    SUBCASE("listStringVar") {
+        std::vector<std::string> val = config.val(std::vector<std::string>{"a", "b", "c"});
+        CHECK(val == std::vector<std::string>{"a", "b", "c"});
     }
 }
 

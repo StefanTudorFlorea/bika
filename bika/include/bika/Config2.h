@@ -8,6 +8,7 @@
 #include <any>
 #include <sstream>
 
+
 class Config2 {
 public:
     // set sources
@@ -49,19 +50,22 @@ public:
         _val = val;
         return *this;
     }
+    Config2& val(const char* val) {
+        _val = std::string{val};
+        return *this;
+    }
 
     template<typename T>
     operator T() {
 
-        if (auto val = std::get_if<YAML::Node>(&_val.value())) {
-            return val->as<T>();
-        }
-        
-        if (auto val = std::get_if<T>(&_val.value())) {
-            return *val;
+        try {
+            auto val = std::any_cast<YAML::Node>(_val.value());
+            return val.as<T>();
+        } catch (const std::bad_any_cast) {
+            // nothing, as we still could have another type
         }
 
-        return {};
+        return std::any_cast<T>(_val.value());
     }
 
 private:
@@ -95,12 +99,6 @@ private:
     }
 
 private:
-    std::optional<std::variant<
-        float, 
-        bool, 
-        int, 
-        std::string, 
-        YAML::Node,
-        >> _val{};
+    std::optional<std::any> _val{};
     std::string _filename;
 };
