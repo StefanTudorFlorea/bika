@@ -7,7 +7,7 @@
 #include <yaml-cpp/yaml.h>
 #include <any>
 #include <sstream>
-
+#include <iostream>
 
 class Config2 {
 public:
@@ -67,6 +67,10 @@ public:
     template<typename T>
     operator T() {
 
+        if (!_val.has_value()) {
+            throw std::runtime_error("missing value");
+        }
+
         try {
             auto val = std::any_cast<YAML::Node>(_val.value());
             return val.as<T>();
@@ -76,6 +80,7 @@ public:
 
         return std::any_cast<T>(_val.value());
     }
+
 
 private:
     // REFACTOR: add one template for both with constexpr if for the type

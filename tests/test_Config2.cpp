@@ -32,6 +32,16 @@ TEST_CASE("Cfg") {
         std::vector<std::string> val = config.cfg("types.listStringVar");
         CHECK(val == std::vector<std::string>{"a", "b", "c"});
     }
+
+}
+
+TEST_CASE("Missing Key") {
+    Config2 config;
+    config.setFile("config.yml");
+
+
+    CHECK_THROWS_AS(static_cast<int>(config.cfg("types.missingVar")), std::runtime_error);
+    CHECK_THROWS_AS(static_cast<int>(config.env("MISSING_ENV")), std::runtime_error);
 }
 
 TEST_CASE("Val") {
@@ -88,6 +98,48 @@ TEST_CASE("Env") {
         setenv("BOOL_VAR", "false", 1);
         val = config.env("BOOL_VAR");
         CHECK(val == false);
+    }
+}
+
+TEST_CASE("Precedence") {
+    Config2 config;
+    config.setFile("config.yml");
+
+    SUBCASE("cfg->val") {
+        int val = config.cfg("types.intVar").val(42);
+        CHECK(val == 42);
+    }
+    SUBCASE("val->cfg") {
+        int val = config.val(42).cfg("types.intVar");
+        CHECK(val == 101);
+    }
+
+    SUBCASE("cfg->env") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.cfg("types.intVar").env("INT_VAR");
+        CHECK(val == 42);
+    }
+    SUBCASE("env->cfg") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.env("INT_VAR").cfg("types.intVar");
+        CHECK(val == 101);
+    }
+
+    SUBCASE("env->val") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.env("INT_VAR").val(101);
+        CHECK(val == 101);
+    }
+    SUBCASE("val->env") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.val(101).env("INT_VAR");
+        CHECK(val == 42);
+    }
+
+    SUBCASE("chain") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.val(1).cfg("types.intVar").val(3).cfg("INT_VAR").cfg("types.Missing").val(123);
+        CHECK(val == 123);
     }
 }
 

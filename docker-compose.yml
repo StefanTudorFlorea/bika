@@ -1,14 +1,8 @@
-volumes:
-  PersistentStorage: {}
-  
 services:
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: admin
       POSTGRES_PASSWORD: pwd123
-      POSTGRES_DB: users
     ports: [5432:5432]
     volumes:
-      - PersistentStorage:/var/lib/postgresql/data             
       - ./db/postgres.sql:/docker-entrypoint-initdb.d/init.sql

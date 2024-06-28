@@ -3,9 +3,12 @@
 #include "bika/Postgres.h"
 #include "bika/Config.h"
 
+
+TEST_SUITE("Postgres") {
+
 //---------------------------------------------------------------------------------------------------------------------
-TEST_CASE("Postgres - dynamic query") {
-    bika::Postgres db{"localhost", "5432", "admin", "pwd123", "users"};
+TEST_CASE("Prepared Statements") {
+    bika::Postgres db{"host=localhost port=5432 password=pwd123 user=postgres dbname=postgres"};
     bika::Config config{"config.yml"};
 
     db.loadPreparedStatements(config.get<YAML::Node>("postgres.queries"));
@@ -23,8 +26,16 @@ TEST_CASE("Postgres - dynamic query") {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-TEST_CASE("Postgres") {
-    bika::Postgres db{"localhost", "5432", "admin", "pwd123", "users"};
+TEST_CASE("Basic Query") {
+    bika::Postgres db{"host=localhost port=5432 password=pwd123 user=postgres dbname=postgres"};
+
+    nlohmann::json res = db.execute("SELECT id,name,age,married FROM Demo");
+    fmt::print("result: {}", res.dump());
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+TEST_CASE("Manual Usage") {
+    bika::Postgres db{"localhost", "5432", "postgres", "pwd123", "postgres"};
 
     // read one
     {
@@ -53,3 +64,5 @@ TEST_CASE("Postgres") {
         t.commit();
     }
 }
+
+} // Postgres
