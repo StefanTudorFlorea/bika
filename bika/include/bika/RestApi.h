@@ -1,8 +1,8 @@
 #pragma once
 #include <functional>
 #include <httplib.h>
-#include <nlohmann/json.hpp>
 #include <string>
+#include <nlohmann/json.hpp>
 
 
 // acceptable to have project wide rename

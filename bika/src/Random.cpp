@@ -18,6 +18,15 @@ int Random::value(int max) {
     return uniform_dist(e);
 }
 
+std::string Random::uuid(int length) {
+    static std::string source;
+    source.append("0123456789");
+    source.append("abcdefghijklmnopqrstuvwxyz");
+    source.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    
+    return Random::text(length, source);
+}
+
 std::string Random::text(int count, const std::string& prefix) {
     static std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
 

@@ -22,8 +22,11 @@ public:
     // random between 0...max
     static int value(int max);
 
+    // random string of 0..9a..zA..Z
+    static std::string uuid(int length = 6);
+
     // random string of count characters from the alphabet with optional prefix
-    static std::string text(int count, const std::string& prefix = {});
+    static std::string text(int count, const std::string& source = "abcdefghijklmnopqrstuvwxyz");
 
     // random from a vector of elements
     template<typename T>
