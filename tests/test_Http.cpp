@@ -5,6 +5,20 @@
 
 //---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("Http") {
-    auto[status, text] = bika::Http::GET("http://www.httpbin.org/get", json{{"hello", "world"}}, {}, "THIS IS MY BODY");
+    json params = {
+        {"hello", "world"},
+        {"name", "stefan"},
+    };
+    json body = {
+        {"age",42},
+        {"val","cool story"}
+    };
+
+    json headers = {
+        {"Authorization", "Bearer your_token"},
+        {"x-Custom", "my-custom"}, 
+    };
+
+    auto[status, text] = bika::Http::GET("http://www.httpbin.org/get", params, headers, body.dump());
     std::cout << "result2:" << text << std::endl;
 }

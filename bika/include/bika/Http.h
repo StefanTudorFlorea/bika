@@ -2,6 +2,7 @@
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <optional>
 
 // acceptable to have project wide rename
 using json = nlohmann::json;
@@ -30,6 +31,7 @@ public:
 private:
     // conversion
     static cpr::Parameters toCprParams(const json& params);
+    static cpr::Header toCprHeader(const json& params);
 };
 
 } // ns bika
