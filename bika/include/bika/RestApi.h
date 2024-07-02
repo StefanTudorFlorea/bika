@@ -36,8 +36,8 @@ public:
         json pathParams;  // /users/:id, /users/:name => Access pathParams["id"], pathParams["name"]
     };
     struct Response { 
-        int status = 200; 
-        std::string body = ""; 
+        int status; 
+        json body{}; 
     };
     using handler_t = std::function<Response(Request)>;
 
@@ -53,7 +53,7 @@ public:
 
 private:
     // set global cors headers
-    void cors(httplib::Response& res);
+    void enableCors(httplib::Response& res);
 
     // handle api requests
     void handleApiCalls(const httplib::Request& req, httplib::Response& res, handler_t handler);

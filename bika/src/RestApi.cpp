@@ -31,7 +31,7 @@ void RestApi::DELETE(const std::string& path, handler_t handler) {
 }
 
 void RestApi::handleApiCalls(const httplib::Request& req, httplib::Response& res, handler_t handler) {
-    cors(res);
+    enableCors(res);
 
     // process handler request,response
     const Request r{req.body, req.headers, req.params, req.path_params};
@@ -39,7 +39,7 @@ void RestApi::handleApiCalls(const httplib::Request& req, httplib::Response& res
 
     // prepare response
     res.status = out.status;
-    res.body = out.body;
+    res.body   = out.body.dump();
     res.set_content(res.body, "application/json");
 }
 
@@ -47,7 +47,7 @@ void RestApi::start(const std::string& host, int port) {
     _app.listen(host, port);
 }
 
-void RestApi::cors(httplib::Response& res) {
+void RestApi::enableCors(httplib::Response& res) {
     res.set_header("Access-Control-Allow-Origin", "*");
 }
 
