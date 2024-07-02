@@ -21,19 +21,15 @@ namespace bika {
         });
         api.start("0.0.0.0", 8080);
 
-    example: client that makes a post request with query params
-        auto[status, text] = bika::RestApi::GET("http://www.httpbin.org/get", json{{"hello", "world"}}, "body sample text");
-
     See: https://github.com/yhirose/cpp-httplib
-    See: https://github.com/libcpr/cpr
 */
 class RestApi {
 public:
     struct Request { 
-        std::string body; // sent with POST => usually convert to json
+        json body;        // sent with POST and we convert it to json
         json headers;     // usually for auth => Access headers["Authorization"]
-        json queryParams; // ?name=stefan&age=42 => Access queryParams["name"], queryParams["age"]
-        json pathParams;  // /users/:id, /users/:name => Access pathParams["id"], pathParams["name"]
+        json queryParams; // ?name=stefan&age=42 => Access queryParams["name"], queryParams["age"] ALL string
+        json pathParams;  // /users/:id, /users/:name => Access pathParams["id"], pathParams["name"] ALL string
     };
     struct Response { 
         int status; 
@@ -57,6 +53,9 @@ private:
 
     // handle api requests
     void handleApiCalls(const httplib::Request& req, httplib::Response& res, handler_t handler);
+
+    // convert from {id} to :id in the path
+    std::string convertPath(const std::string& origPath);
 
 private:
     httplib::Server _app;

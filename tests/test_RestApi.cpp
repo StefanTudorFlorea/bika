@@ -1,15 +1,17 @@
 #include <doctest/doctest.h>
 #include "bika/RestApi.h"
-
+#include <fmt/core.h>
 
 //---------------------------------------------------------------------------------------------------------------------
 TEST_CASE("RestApi") {
     bika::RestApi api;
 
-    api.POST("/ping", [](auto req) -> bika::RestApi::Response {
+    api.POST("/ping/{id}", [](auto req) -> bika::RestApi::Response {
+
         return {200, {
             {"statusCode", 200},
-            {"message", "pong"}
+            {"message", "pong"},
+            {"payload", req.body}
         }};
     });
 
