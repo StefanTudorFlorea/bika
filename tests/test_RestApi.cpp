@@ -6,6 +6,14 @@
 TEST_CASE("RestApi") {
     bika::RestApi api;
 
+    api.setPreHandler([](const bika::RestApi::Request& req) -> bika::RestApi::Response {
+        fmt::println("Auth: {}", std::string{req.headers["Authorization"]});
+        return {400, {
+            {"statusCode", 400},
+            {"message", "Unauthorized"},
+        }};
+    });
+
     api.POST("/ping/{id}", [](auto req) -> bika::RestApi::Response {
 
         return {200, {

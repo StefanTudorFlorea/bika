@@ -9,28 +9,28 @@ namespace bika {
 
 //---------------------------------------------------------------------------------------------------------------------
 void RestApi::POST(const std::string& path, handler_t handler) {
-    _app.Post(convertPath(path), [this,handler](const httplib::Request& req, httplib::Response& res) {
+    _server.Post(convertPath(path), [this,handler](const httplib::Request& req, httplib::Response& res) {
         handleApiCalls(req, res, handler);
     });
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 void RestApi::GET(const std::string& path, handler_t handler) {
-    _app.Get(convertPath(path), [this,handler](const httplib::Request& req, httplib::Response& res) {
+    _server.Get(convertPath(path), [this,handler](const httplib::Request& req, httplib::Response& res) {
         handleApiCalls(req, res, handler);
     });
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 void RestApi::PUT(const std::string& path, handler_t handler) {
-    _app.Put(convertPath(path), [this,handler](const httplib::Request& req, httplib::Response& res) {
+    _server.Put(convertPath(path), [this,handler](const httplib::Request& req, httplib::Response& res) {
         handleApiCalls(req, res, handler);
     });
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 void RestApi::DELETE(const std::string& path, handler_t handler) {
-    _app.Delete(convertPath(path), [this,handler](const httplib::Request& req, httplib::Response& res) {
+    _server.Delete(convertPath(path), [this,handler](const httplib::Request& req, httplib::Response& res) {
         handleApiCalls(req, res, handler);
     });
 }
@@ -40,7 +40,15 @@ void RestApi::handleApiCalls(const httplib::Request& req, httplib::Response& res
     enableCors(res);
 
     // process handler request,response
-    const Request r{json::parse(req.body), req.headers, req.params, req.path_params};
+    // BUG: cannot parse body if empty
+    Request r;
+    r.body           = json::parse(req.body);
+    r.headers        = req.headers;
+    r.queryParams    = req.params;
+    r.pathParams     = req.path_params;
+    r.context.method = req.method;
+    r.context.path   = req.path;
+
     Response out = handler(r);
 
     // prepare response
@@ -56,9 +64,8 @@ std::string RestApi::convertPath(const std::string &origPath) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-void RestApi::start(const std::string &host, int port)
-{
-    _app.listen(host, port);
+void RestApi::start(const std::string &host, int port) {
+    _server.listen(host, port);
 }
 
 //---------------------------------------------------------------------------------------------------------------------

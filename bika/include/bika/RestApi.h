@@ -30,6 +30,13 @@ public:
         json headers;     // usually for auth => Access headers["Authorization"]
         json queryParams; // ?name=stefan&age=42 => Access queryParams["name"], queryParams["age"] ALL string
         json pathParams;  // /users/:id, /users/:name => Access pathParams["id"], pathParams["name"] ALL string
+
+        // additional information about the call
+        struct Context {
+            std::string method;
+            std::string path;
+        };
+        Context context;
     };
     struct Response { 
         int status; 
@@ -38,6 +45,36 @@ public:
     using handler_t = std::function<Response(Request)>;
 
 public:
+    // runt before handlers
+    void setPreHandler(handler_t handler) {
+
+        _server.set_pre_routing_handler([this, handler](const auto& req, auto& res) {
+
+            Request r;
+            r.body           = json::parse(req.body);
+            r.headers        = req.headers;
+            r.queryParams    = req.params;
+            r.pathParams     = req.path_params;
+            r.context.method = req.method;
+            r.context.path   = req.path;
+
+            const Response out = handler(r);
+
+            // returned an error, dont process further routes
+            if (out.status != 200) {
+
+                // prepare response
+                res.status = out.status;
+                res.body   = out.body.dump();
+                res.set_content(res.body, "application/json");
+
+                return httplib::Server::HandlerResponse::Handled;
+            }
+
+            return httplib::Server::HandlerResponse::Unhandled;
+        });
+    }
+
     // server routes
     void POST(const std::string& path,   handler_t handler);
     void GET(const std::string& path,    handler_t handler);
@@ -46,6 +83,10 @@ public:
 
     // run the server and listen to requests
     void start(const std::string& host, int port);
+
+    httplib::Server& server() {
+        return _server;
+    }
 
 private:
     // set global cors headers
@@ -58,7 +99,7 @@ private:
     std::string convertPath(const std::string& origPath);
 
 private:
-    httplib::Server _app;
+    httplib::Server _server;
 };
 
 } // ns bika
