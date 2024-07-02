@@ -26,7 +26,7 @@ public:
     static std::string uuid(int length = 6);
 
     // random string of count characters from the alphabet with optional prefix
-    static std::string text(int count, const std::string& source = "abcdefghijklmnopqrstuvwxyz");
+    static std::string text(const std::string& prefix, int count, const std::string& source = "abcdefghijklmnopqrstuvwxyz");
 
     // random from a vector of elements
     template<typename T>

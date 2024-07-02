@@ -24,16 +24,16 @@ std::string Random::uuid(int length) {
     source.append("abcdefghijklmnopqrstuvwxyz");
     source.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     
-    return Random::text(length, source);
+    return Random::text({}, length, source);
 }
 
-std::string Random::text(int count, const std::string& prefix) {
+std::string Random::text(const std::string& prefix, int count, const std::string& source) {
     static std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
 
     std::string result{prefix};
     for (int i = 0; i < count; ++i) {
-        int randIdx = Random::value(0, alphabet.size()-1);
-        result += alphabet.at(randIdx);
+        int randIdx = Random::value(0, source.size()-1);
+        result += source.at(randIdx);
     }
 
     return result;
