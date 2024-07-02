@@ -49,6 +49,8 @@ void RestApi::start(const std::string& host, int port) {
 
 void RestApi::enableCors(httplib::Response& res) {
     res.set_header("Access-Control-Allow-Origin", "*");
+    res.set_header("Access-Control-Allow-Headers", "*");
+    res.set_header("Access-Control-Allow-Methods", "*");
 }
 
 } // ns bika
