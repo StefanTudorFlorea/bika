@@ -9,6 +9,7 @@
       "yaml-cpp",
       "cpp-httplib",
       "cpr",
-      "json-schema-validator"
+      "json-schema-validator",
+      "hash-library"
     ]
 }

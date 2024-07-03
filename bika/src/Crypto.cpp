@@ -63,4 +63,18 @@ std::string Crypto::fromBase64(const std::string &in) {
     return out;
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+std::string Crypto::hash(const std::string& in, Hash h) {
+    switch (h) {
+        case sha256: return SHA256{}(in);
+        case md5:    return MD5{}(in);
+        case cr32:   return CRC32{}(in);
+        case sha1:   return SHA1{}(in);
+        case sha3:   return SHA3{}(in);
+        case keccak: return Keccak{}(in);
+    }
+
+    return in;
+}
+
 } // ns bika

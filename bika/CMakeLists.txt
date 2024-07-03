@@ -6,7 +6,7 @@ find_package(yaml-cpp                       CONFIG REQUIRED)
 find_package(httplib                        CONFIG REQUIRED)
 find_package(cpr                            CONFIG REQUIRED)
 find_package(nlohmann_json_schema_validator CONFIG REQUIRED)
-
+find_package(unofficial-hash-library        CONFIG REQUIRED)
 
 # library
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp include/*.h)
@@ -23,6 +23,7 @@ target_link_libraries(bika
         yaml-cpp::yaml-cpp
         cpr::cpr
         nlohmann_json_schema_validator::validator
+        unofficial::hash-library
 )
 
 # alias
