@@ -14,7 +14,7 @@ public:
 
     void validate(const nlohmann::json& obj, const std::string& schemaPath) {
         nlohmann::json_schema::json_validator validator;
-        validator.set_root_schema(nlohmann::json::parse(_config.get<std::string>(schemaPath)));
+        validator.set_root_schema(nlohmann::json::parse(std::string{_config.cfg(schemaPath)}));
         validator.validate(obj);
     }
 private:

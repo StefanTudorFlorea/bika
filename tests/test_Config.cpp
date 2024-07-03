@@ -1,56 +1,140 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
-#include <cstdlib>
 #include "bika/Config.h"
 
+TEST_SUITE("Config") {
 
-//---------------------------------------------------------------------------------------------------------------------
-TEST_CASE("Config") {
+
+TEST_CASE("Cfg") {
     bika::Config config{"config.yml"};
 
-    // static value must be there - int
-    CHECK(config.get<int>("configuration.ports.web") == 8080);
+    SUBCASE("stringType") {
+        std::string val = config.cfg("types.stringVar");
+        CHECK(val == "hello world");
+    }
 
-    // static not there, take default
-    CHECK(config.get<int>("path.does.not.exist", {}, 42) == 42);
+    SUBCASE("intType") {
+        int val = config.cfg("types.intVar");
+        CHECK(val == 101);
+    }
 
-    // static not given, take default
-    CHECK(config.get<int>({}, {}, 42) == 42);
+    SUBCASE("boolType") {
+        bool val = config.cfg("types.boolVar");
+        CHECK(val == true);
+    }
 
-    // static there, take it even if default is present
-    CHECK(config.get<int>("configuration.ports.web", {}, 42) == 8080);
+    SUBCASE("listIntVar") {
+        std::vector<int> val = config.cfg("types.listIntVar");
+        CHECK(val == std::vector<int>{1,2,3,4});
+    }
 
-    // nothing found, and no defaults are set, throw exception
-    CHECK_THROWS_AS(config.get<int>("path.does.not.exist"), std::exception);
-
-    // env var overwrites static settings
-    setenv("CUSTOM_PORT", "1234", 1);
-    CHECK(config.get<int>("configuration.ports.web", "CUSTOM_PORT") == 1234);
-
-    // env var overwrites static settings even if we set default
-    setenv("CUSTOM_PORT", "1234", 1);
-    CHECK(config.get<int>("configuration.ports.web", "CUSTOM_PORT", 42) == 1234);
-
-    // env var takes precedence if static not found
-    setenv("CUSTOM_PORT", "1234", 1);
-    CHECK(config.get<int>("path.does.not.exist", "CUSTOM_PORT") == 1234);
-
-    // env var takes precedence if static not found and even if we have default
-    setenv("CUSTOM_PORT", "1234", 1);
-    CHECK(config.get<int>("path.does.not.exist", "CUSTOM_PORT", 42) == 1234);
-
-    // static not given, take env
-    setenv("CUSTOM_PORT", "1234", 1);
-    CHECK(config.get<int>({}, "CUSTOM_PORT", 42) == 1234);
-
-    // static not given, default not given
-    setenv("CUSTOM_PORT", "1234", 1);
-    CHECK(config.get<int>({}, "CUSTOM_PORT", {}) == 1234);
-
-    // check types
-    CHECK(config.get<std::string>("types.stringVar") == "hello world");
-    CHECK(config.get<int>("types.intVar") == 101);
-    CHECK(config.get<bool>("types.boolVar") == true);
-    CHECK(config.get<std::vector<int>>("types.listIntVar") == std::vector<int>{1,2,3,4});
-    CHECK(config.get<std::vector<std::string>>("types.listStringVar") == std::vector<std::string>{"a", "b", "c"});
+    SUBCASE("listStringVar") {
+        std::vector<std::string> val = config.cfg("types.listStringVar");
+        CHECK(val == std::vector<std::string>{"a", "b", "c"});
+    }
 }
+
+TEST_CASE("Missing Key") {
+    bika::Config config{"config.yml"};
+
+    CHECK_THROWS_AS(static_cast<int>(config.cfg("types.missingVar")), std::runtime_error);
+    CHECK_THROWS_AS(static_cast<int>(config.env("MISSING_ENV")), std::runtime_error);
+}
+
+TEST_CASE("Val") {
+    bika::Config config{"config.yml"};
+
+    SUBCASE("stringType") {
+        std::string val = config.val("hello world");
+        CHECK(val == "hello world");
+    }
+
+    SUBCASE("intType") {
+        int val = config.val(101);
+        CHECK(val == 101);
+    }
+
+    SUBCASE("boolType") {
+        bool val = config.val(true);
+        CHECK(val == true);
+    }
+
+    SUBCASE("listIntVar") {
+        std::vector<int> val = config.val(std::vector<int>{1,2,3,4});
+        CHECK(val == std::vector<int>{1,2,3,4});
+    }
+
+    SUBCASE("listStringVar") {
+        std::vector<std::string> val = config.val(std::vector<std::string>{"a", "b", "c"});
+        CHECK(val == std::vector<std::string>{"a", "b", "c"});
+    }
+}
+
+TEST_CASE("Env") {
+    bika::Config config{"config.yml"};
+
+    SUBCASE("stringType") {
+        setenv("STRING_VAR", "hello world", 1);
+        std::string val = config.env("STRING_VAR");
+        CHECK(val == "hello world");
+    }
+
+    SUBCASE("intType") {
+        setenv("INT_VAR", "101", 1);
+        int val = config.env("INT_VAR");
+        CHECK(val == 101);
+    }
+
+    SUBCASE("boolType") {
+        setenv("BOOL_VAR", "true", 1);
+        bool val = config.env("BOOL_VAR");
+        CHECK(val == true);
+
+        setenv("BOOL_VAR", "false", 1);
+        val = config.env("BOOL_VAR");
+        CHECK(val == false);
+    }
+}
+
+TEST_CASE("Precedence") {
+    bika::Config config{"config.yml"};
+
+    SUBCASE("cfg->val") {
+        int val = config.cfg("types.intVar").val(42);
+        CHECK(val == 42);
+    }
+    SUBCASE("val->cfg") {
+        int val = config.val(42).cfg("types.intVar");
+        CHECK(val == 101);
+    }
+
+    SUBCASE("cfg->env") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.cfg("types.intVar").env("INT_VAR");
+        CHECK(val == 42);
+    }
+    SUBCASE("env->cfg") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.env("INT_VAR").cfg("types.intVar");
+        CHECK(val == 101);
+    }
+
+    SUBCASE("env->val") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.env("INT_VAR").val(101);
+        CHECK(val == 101);
+    }
+    SUBCASE("val->env") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.val(101).env("INT_VAR");
+        CHECK(val == 42);
+    }
+
+    SUBCASE("chain") {
+        setenv("INT_VAR", "42", 1);
+        int val = config.val(1).cfg("types.intVar").val(3).cfg("INT_VAR").cfg("types.Missing").val(123);
+        CHECK(val == 123);
+    }
+}
+
+} // Config2

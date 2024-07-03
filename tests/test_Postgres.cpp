@@ -11,7 +11,7 @@ TEST_CASE("Prepared Statements") {
     bika::Postgres db{"host=localhost port=5432 password=pwd123 user=postgres dbname=postgres"};
     bika::Config config{"config.yml"};
 
-    db.loadPreparedStatements(config.get<YAML::Node>("postgres.queries"));
+    db.loadPreparedStatements(YAML::Node{config.cfg("postgres.queries")});
 
     // read
     // nlohmann::json j = db.executePrepared("GetUserById", 1);

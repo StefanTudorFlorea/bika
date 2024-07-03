@@ -1,107 +1,64 @@
 #pragma once
-#include <algorithm>
+#include <any>
 #include <cstdlib>
-#include <fmt/core.h>
-#include <iterator>
+#include <iostream>
 #include <optional>
 #include <sstream>
-#include <string_view>
 #include <string>
-#include <type_traits>
+#include <variant>
+#include <vector>
 #include <yaml-cpp/yaml.h>
+
 
 namespace bika {
 
-/*  Load configuration settings from a yaml file and override them with environment variables if necessary
-    If value is not found it throws std::runtime_error
-
-    Precedence:
-        1. (optional) load yaml settings
-        2. (optional) load env var
-        3. (optional) set defaults if no value found
-
-    Supported types: int, string, bool
-
-    example: Load from yaml, but if env var is specified, overwrite the result
-        Config cfg{"settings.yml"};
-        int port = cfg.get<int>("configuration.ports.web", "CUSTOM_PORT");
-
-    example: Just load directly from yaml
-        Config cfg{"settings.yml"};
-        int port = cfg.get<int>("configuration.ports.web");
-
-    example: Load a generic node
-        Config cfg{"settings.yml"};
-        YAML::Node node = cfg.get<YAML::Node>("postgres.queries");
-
-*/
 class Config {
 public:
-    Config(std::string_view filename);
+    Config(const std::string& filename);
 
-    // get path -> env -> init in this order if they are not found. Throws if nothing is found
+    // query sources
+    Config& env(const std::string& name);
+    Config& cfg(const std::string& path);
+
+    // TODO: convert template const char* to std::string automatically
     template<typename T>
-    T get(std::optional<std::string> path, std::optional<std::string> env = {}, std::optional<T> init = {}) const {
-
-        // detect local file changes
-        YAML::Node config = YAML::LoadFile(_filename);
-
-        // set init as fallback option
-        T value{};
-        bool found = false;
-        if (init) {
-            value = init.value();
-            found = true;
-        }
-
-        // search yaml
-        if (path) {
-            YAML::Node node = config;
-            for (auto t : split(path.value(), '.')) {
-                node = node[t];
-            }
-            if (node.IsDefined()) {
-                value = node.as<T>();
-                found = true;
-            }
-        }
-
-        // search env var
-        if(env) {
-            if (char* envVar = std::getenv(env.value().c_str())) {
-                value = convert<T>(envVar);
-                found = true;
-            }
-        }
-
-        // TODO: return optional instead of throwing
-        // no default, no env, no static found
-        if (!found) {
-            throw std::runtime_error("value not found");
-        }
-
-        // done
-        return value;
+    Config& val(const T& val) {
+        _val = val;
+        return *this;
     }
+    Config& val(const char* val) {
+        _val = std::string{val};
+        return *this;
+    }
+
+    template<typename T>
+    operator T() {
+
+        if (!_val.has_value()) {
+            throw std::runtime_error("missing value");
+        }
+
+        try {
+            auto val = std::any_cast<YAML::Node>(_val.value());
+            return val.as<T>();
+        } catch (const std::bad_any_cast) {
+            // nothing, as we could still have another type below
+        }
+
+        return std::any_cast<T>(_val.value());
+    }
+
 
 private:
+    // REFACTOR: add one template for both with constexpr if for the type
+    bool try_convert(const std::string& str, int& result);
+    bool try_convert(const std::string& str, bool& result);
 
-    // convert from string to different types
-    template<typename T>
-    T convert(const std::string& str) const {
-
-        if constexpr (std::is_integral_v<T>)          return std::stoi(str);
-        if constexpr (std::is_floating_point_v<T>)    return std::stof(str);
-        if constexpr (std::is_same_v<T, std::string>) return std::string(str);
-
-        throw std::runtime_error("Unsupported type for conversion");
-    }
-
-    // tokenize text based on delim
     std::vector<std::string> split(const std::string& text, char delim) const;
 
 private:
-    const std::string _filename;
+    std::optional<std::any> _val{};
+    std::string _filename;
 };
 
 } // ns bika
