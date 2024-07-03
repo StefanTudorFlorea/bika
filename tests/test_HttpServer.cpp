@@ -1,12 +1,12 @@
 #include <doctest/doctest.h>
-#include "bika/RestApi.h"
+#include "bika/HttpServer.h"
 #include <fmt/core.h>
 
 //---------------------------------------------------------------------------------------------------------------------
-TEST_CASE("RestApi") {
-    bika::RestApi api;
+TEST_CASE("HttpServer") {
+    bika::HttpServer api;
 
-    api.setPreHandler([](const bika::RestApi::Request& req) -> bika::RestApi::Response {
+    api.setPreHandler([](const bika::HttpServer::Request& req) -> bika::HttpServer::Response {
         fmt::println("Auth: {}", std::string{req.headers["Authorization"]});
         return {400, {
             {"statusCode", 400},
@@ -14,7 +14,7 @@ TEST_CASE("RestApi") {
         }};
     });
 
-    api.POST("/ping/{id}", [](auto req) -> bika::RestApi::Response {
+    api.POST("/ping/{id}", [](auto req) -> bika::HttpServer::Response {
 
         return {200, {
             {"statusCode", 200},

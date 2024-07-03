@@ -23,13 +23,13 @@ namespace bika {
 
     See: https://github.com/yhirose/cpp-httplib
 */
-class RestApi {
+class HttpServer {
 public:
     struct Request { 
         json body;        // sent with POST and we convert it to json
         json headers;     // usually for auth => Access headers["Authorization"]
         json queryParams; // ?name=stefan&age=42 => Access queryParams["name"], queryParams["age"] ALL string
-        json pathParams;  // /users/:id, /users/:name => Access pathParams["id"], pathParams["name"] ALL string
+        json pathParams;  // /users/{id}, /users/{name} => Access pathParams["id"], pathParams["name"] ALL string
 
         // additional information about the call
         struct Context {
@@ -56,10 +56,6 @@ public:
 
     // run the server and listen to requests
     void start(const std::string& host, int port);
-
-    httplib::Server& server() {
-        return _server;
-    }
 
 private:
     // set global cors headers

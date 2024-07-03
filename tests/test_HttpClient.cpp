@@ -1,6 +1,6 @@
 #include <doctest/doctest.h>
 #include <iostream>
-#include "bika/Http.h"
+#include "bika/HttpClient.h"
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -19,6 +19,6 @@ TEST_CASE("Http") {
         {"x-Custom", "my-custom"}, 
     };
 
-    auto[status, text] = bika::Http::GET("http://www.httpbin.org/get", params, headers, body.dump());
-    std::cout << "result2:" << text << std::endl;
+    auto[status, text] = bika::HttpClient::GET("http://www.httaasaspbin.org/get", params, {}, body.dump());
+    std::cout << "result2:" << status << std::endl;
 }

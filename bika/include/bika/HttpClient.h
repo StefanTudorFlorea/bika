@@ -12,11 +12,12 @@ namespace bika {
 
 /*  Http client that allows to make post,get,put,delete requests to an endpoint
     Accepts optional params, headers and body
+    Status is 0 if URL not reachable
 
     usage: 
         auto[status, text] = bika::Http::GET("http://www.httpbin.org/get", json{{"name", "stefan"}, {"age", 42}});
 */
-class Http {
+class HttpClient {
 public:
     struct Response {
         int status = 200;
