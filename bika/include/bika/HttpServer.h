@@ -3,6 +3,7 @@
 #include <httplib.h>
 #include <string>
 #include <nlohmann/json.hpp>
+#include <utility>
 
 
 // acceptable to have project wide rename
@@ -13,11 +14,18 @@ namespace bika {
 /*  Create a simple rest api server with cors enabled
     Or a simple client that calls rest api
     Supported http methods: GET, POST, DELETE, PUT
+    Response is of type json and has the following optional fields:
+    - "status": INT. Default = 200 if not set
+    - "body": JSON. Default = {} if not set
+    - "headers": STRING LIST. Default = {} if not set
 
     example: Add a GET /ping
         RestApi api;
-        api.GET("/ping", [](auto req) -> bika::RestApi::Response {
-            return {200, "OK"};
+        api.GET("/ping", [](auto req) -> json {
+            return {
+                {"status", 200},
+                {"body", "this is my body"}
+            }
         });
         api.start("0.0.0.0", 8080);
 
@@ -38,11 +46,8 @@ public:
         };
         Context context;
     };
-    struct Response { 
-        int status; 
-        json body{}; 
-    };
-    using handler_t = std::function<Response(Request)>;
+    
+    using handler_t = std::function<json(Request)>;
 
 public:
     // runt before handlers
@@ -66,6 +71,9 @@ private:
 
     // convert from {id} to :id in the path
     std::string convertPath(const std::string& origPath);
+
+    // from a header of form `My-Header: some random value' extra header name and value
+    std::pair<std::string, std::string> parseHttHeader(const std::string& header);
 
 private:
     httplib::Server _server;

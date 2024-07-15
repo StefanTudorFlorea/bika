@@ -20,14 +20,14 @@ void HttpServer::setPreHandler(handler_t handler) {
         r.context.method = req.method;
         r.context.path   = req.path;
 
-        const Response out = handler(r);
+        const json out = handler(r);
 
         // returned an error, dont process further routes
-        if (out.status != 200) {
+        if (out.at("status") != 200) {
 
             // prepare response
-            res.status = out.status;
-            res.body   = out.body.dump();
+            res.status = out["status"];
+            res.body   = out["body"].dump();
             res.set_content(res.body, "application/json");
 
             return httplib::Server::HandlerResponse::Handled;
@@ -78,12 +78,32 @@ void HttpServer::handleApiCalls(const httplib::Request& req, httplib::Response& 
     r.context.method = req.method;
     r.context.path   = req.path;
 
-    Response out = handler(r);
+    const json& out = handler(r);
 
     // prepare response
-    res.status = out.status;
-    res.body   = out.body.dump();
+    res.status  = out.value("status", 200); // implicit OK, if not defined
+    res.body    = out.at("body").dump();    // 'body' must be defined
+
+    // override default headers if user set some
+    if (out.contains("headers")) {
+        for (const auto h: out.at("headers")) {
+            const auto [headerName, headerValue] = parseHttHeader(h);
+            res.set_header(headerName, headerValue);
+        }
+    }
     res.set_content(res.body, "application/json");
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+std::pair<std::string, std::string> HttpServer::parseHttHeader(const std::string& header) {
+    
+    if (auto pos = header.find(':'); pos != std::string::npos) {
+        std::string name = header.substr(0, pos);
+        std::string value = header.substr(pos+1);
+        return {name, value};
+    }
+
+    return {"", ""};
 }
 
 //---------------------------------------------------------------------------------------------------------------------
